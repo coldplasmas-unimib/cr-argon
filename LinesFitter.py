@@ -1,7 +1,9 @@
 import numpy as np
 from .utilities import adv_plt as plt, splt
 from . import Levels, NistEinsteinData
-
+from .utilities.ufloat_functs import mean, n
+from scipy.optimize import curve_fit
+from uncertainties import *
 
 class LinesFitter:
 
@@ -24,6 +26,8 @@ class LinesFitter:
             # 2p6
             764,
             923,
+            # 2p7
+            # 867,
             # 2p8
             843, 802,
             # 2p9
@@ -86,6 +90,13 @@ class LinesFitter:
         for lv in self.levels:
             idxs = [l['from'] == lv for l in self.lines]
             output.append(mean(densities[idxs]))
+
+        # Normalize
+        output = output / np.mean( n( output ) )
+
+        # TO BE REMOVED
+        for i in range( len(output) ):
+            output[i] = ufloat( output[i].n, 0.05 ) # TO BE REMOVED
             # print(f"{lv} estimated over {sum(idxs)} lines")
 
         return output

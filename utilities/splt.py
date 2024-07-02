@@ -99,7 +99,7 @@ def lacking( text="" ):
 def set_export_folder( folder ):
     global _export_folder
     _export_folder = folder
-def export( filename, draft = False ):
+def export( filename, draft = False, transparent = True ):
     global _export_folder
 
     if not os.path.exists( _export_folder ):
@@ -109,8 +109,8 @@ def export( filename, draft = False ):
         plt.annotate( "DRAFT", [ 0.5, 0.7 ], ha='center', va='center', color='red', weight='bold', fontsize=40, xycoords= 'figure fraction' )
         plt.annotate( "All panels should be considered draft", [ 0.5, 0.5 ], ha='center', va='center', color='red', fontsize=20, xycoords= 'figure fraction' )
 
-    plt.savefig( _export_folder + "/" + filename + ".png", bbox_inches="tight", dpi=600 )
-    plt.savefig( _export_folder + "/" + filename + ".pdf", bbox_inches="tight" )
+    plt.savefig( _export_folder + "/" + filename + ".png", bbox_inches="tight", dpi=600, transparent = transparent )
+    plt.savefig( _export_folder + "/" + filename + ".pdf", bbox_inches="tight", transparent = transparent )
 
     print(_export_folder + "/" + filename + ".pdf")
 

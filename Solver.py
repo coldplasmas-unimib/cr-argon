@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg import null_space
 from . import Levels, LxCatData, NistEinsteinData, AtTransData
+from .utilities.ufloat_functs import n,s
 
 class Solver:
 
@@ -64,15 +65,22 @@ class Solver:
         self.n = eq_densities[:, 0] / eq_densities[0, 0] * 1e6 # Normalize such that the density of the ground state is 1e6
 
         return self.n
+    
+    def scaleFactor( self, nv_sel, den_tofit, norm_on = [] ):
+        if( len( norm_on ) == 0 ):
+            norm_on = s( den_tofit )
+        return np.sum( n( den_tofit ) * nv_sel / norm_on / norm_on ) / np.sum( nv_sel * nv_sel / norm_on / norm_on )
+
+
 
     def chiSquared( self, states, den_tofit,  n_g, f_e, T_e, T_g ):
         nv = self.findEquilibrium( n_g, f_e, T_e, T_g )
         nv_sel = nv[ [ self.lv.ID(l) for l in states ] ]
 
-        # scaling = np.sum( n( den_tofit ) * nv_sel / s( den_tofit) / s( den_tofit) ) / np.sum( nv_sel * nv_sel / s( den_tofit ) / s( den_tofit ) )
-        # return np.sum( np.power( ( n( den_tofit ) - nv_sel * scaling ) / s( den_tofit ), 2 ) )
-        scaling = np.sum( n( den_tofit ) * nv_sel / n( den_tofit) / n( den_tofit) ) / np.sum( nv_sel * nv_sel / n( den_tofit ) / n( den_tofit ) )
-        return np.sum( np.power( ( n( den_tofit ) - nv_sel * scaling ) / n( den_tofit ), 2 ) )
+        norm_on = s( den_tofit )
+
+        scaling = self.scaleFactor( nv_sel, den_tofit, norm_on )
+        return np.sum( np.power( ( n( den_tofit ) - nv_sel * scaling ) / norm_on, 2 ) )
 
 
     # def getSpectrum(self, n, lines=[], all_lines=False, with_lines = False):

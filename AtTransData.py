@@ -5,7 +5,7 @@ from . import Levels, TransMatrix
 
 class AtTransData:
 
-    def __init__(self, lv: Levels.Levels, weight_on = 'B' ): # weight_on: 'g', 'gT' (g and maxwell), 'T' (maxwell) or '1' (uniform)
+    def __init__(self, lv: Levels.Levels, weight_on = 'gT' ): # weight_on: 'g', 'gT' (g and maxwell), 'T' (maxwell) or '1' (uniform)
         assert weight_on in ['g', 'gT', 'T', '1', 'B']
 
         self.transit = {}

@@ -22,21 +22,26 @@ class Plotter:
                     self.external_exchanges[x, y] = 1
 
         self.plotStuff = [
-            ( 'tab:blue'	,	"Electrons impact (internal)",  lambda slv: ( slv.Q_e * self.internal_exchanges * slv.f_e     ).M ),
-            ( 'tab:cyan'	,	"Electrons impact (external)",  lambda slv: ( slv.Q_e * self.external_exchanges * slv.f_e     ).M ),
-            ( 'tab:purple'	,	"Electrons impact (g.s.)",      lambda slv: ( slv.Q_e * self.gs_exchanges * slv.f_e           ).M ),
-            ( 'tab:green'	,	"Atoms impact (internal)",      lambda slv: ( slv.Q_a * self.internal_exchanges               ).M ),
-            ( 'tab:olive'	,	"Atoms impact (external)",      lambda slv: ( slv.Q_a * self.external_exchanges               ).M ),
-            ( 'tab:grey'	,	"Atoms impact (g.s.)",          lambda slv: ( slv.Q_a * self.gs_exchanges                     ).M ),
+            ( 'tab:blue'	,	"Electron impact (internal)",  lambda slv: ( slv.Q_e * self.internal_exchanges * slv.f_e     ).M ),
+            ( 'tab:cyan'	,	"Electron impact (external)",  lambda slv: ( slv.Q_e * self.external_exchanges * slv.f_e     ).M ),
+            ( 'tab:purple'	,	"Electron impact (ground state)",      lambda slv: ( slv.Q_e * self.gs_exchanges * slv.f_e           ).M ),
+            ( 'tab:green'	,	"Atom impact (internal)",      lambda slv: ( slv.Q_a * self.internal_exchanges               ).M ),
+            ( 'tab:olive'	,	"Atom impact (external)",      lambda slv: ( slv.Q_a * self.external_exchanges               ).M ),
+            ( 'tab:grey'	,	"Atom impact (ground state)",          lambda slv: ( slv.Q_a * self.gs_exchanges                     ).M ),
             ( 'tab:orange'	,	"Radiative emission",           lambda slv: ( slv.A / slv.n_g                                 ).M ),
         ]
 
         self.split_in = [
-            ( 1, 6 ),
-            ( 5, self.lv.levcount )
+            ( 1, 5 ),
+            ( 5, 15 )
         ]
 
     def four_plots(self, n, title):
+
+        self.densities_plots( n, title )
+        self.transitions_plots( n, title )
+
+    def densities_plots(self, n, title):
 
         for start, end in self.split_in:
             splt.next()
@@ -47,7 +52,7 @@ class Plotter:
                 plt.title( title )
                 plt.yscale('log')
 
-
+    def transitions_plots(self, n, title):
         for start, end in self.split_in:
             splt.next()
             stack = False
@@ -65,12 +70,14 @@ class Plotter:
             plt.xlim(xlim)
             plt.ylim( np.array([ -1, 1 ]) * np.max( np.abs( plt.ylim())))
             plt.xticks( np.arange( end - start), self.lv.all_names()[start:end], rotation=45 )
+            plt.ylabel("Transition rate [a.u.]\nDepopulation | Population")
 
-    def plot_legend(self):
+    def prepare_legend(self, andPlot = True):
         for ( col, lab, func ) in self.plotStuff:
-            splt.bar( [0],[1], label=lab, color=col)
-        splt.bar( [0],[1], label=None, color='white')
-        plt.legend(loc='center')
+            splt.bar( [0],[1 if andPlot else 0], label=lab, color=col)
+        splt.bar( [0],[1 if andPlot else 0], label=None, color='white')
+        if( andPlot ):
+            plt.legend(loc='center')
 
     def states_plot( self, n, tresh = -1 ):
         splt.init( 1, 1, size = (18, 10) )
