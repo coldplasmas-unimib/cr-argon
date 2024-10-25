@@ -2,6 +2,7 @@ import numpy as np
 import re
 from os.path import dirname
 from . import Levels, TransMatrix
+from copy import deepcopy
 
 class LxCatData:
 
@@ -9,6 +10,8 @@ class LxCatData:
         self.lv = lv
         
         self.transit = {}
+        self.unbalanced_transit = {}
+        self.transit_source = {}
         self.dbs = {
             'bsr': dirname( __file__ ) + "/data/BSR.txt",
             'IST': dirname( __file__ ) + "/data/IST.txt"
@@ -57,7 +60,7 @@ class LxCatData:
                         if (line.startswith("PARAM")):
                             # (thresh' line)
                             match = re.match(
-                                '.*E ?= ?([0-9\.]*) ?eV.*', line)
+                                r'.*E ?= ?([0-9\.]*) ?eV.*', line)
                             if (match):
                                 thresh = float(match.group(1))
                             else:
@@ -89,6 +92,16 @@ class LxCatData:
                     norm_on = norm_on * 2
                 # print(f"Normalizing {st}->{ed} on {norm_on}")
                 loc_transit[st][ed] = loc_transit[st][ed] / norm_on
+
+        # Save a copy of unbalanced transitions
+        for st in loc_transit.keys():
+            if(( st not in self.unbalanced_transit) and (st != 'h' )):
+                self.unbalanced_transit[st] = {}
+                self.transit_source[st] = {}
+            for ed in loc_transit[st].keys():
+                if( ed != 'h' ):
+                    self.unbalanced_transit[st][ed] = loc_transit[st][ed]
+                    self.transit_source[st][ed] = db
 
         # Populate reverse reactions!
         for st in loc_transit.keys():
@@ -125,7 +138,7 @@ class LxCatData:
         if( name == 'Ar' ):
             return 'gs', 'Ar'
 
-        content = re.match( '.*\((.*)\)', name ).group(1)
+        content = re.match( r'.*\((.*)\)', name ).group(1)
 
         statesdict = {
             "4s[3/2]2" : "1s5",
@@ -148,7 +161,7 @@ class LxCatData:
         }
 
         # BSR excited
-        match = re.match("(4[sp]'?\[[135]/2\][0-9]+)", content)
+        match = re.match(r"(4[sp]'?\[[135]/2\][0-9]+)", content)
         if( match ):
             if( match.group(1) in statesdict.keys() ):
                 return statesdict[match.group(1)], content
@@ -159,7 +172,7 @@ class LxCatData:
             return statesdict[content[:2]], content
         
         # IST excited to skip
-        match = re.match("(\dP\d)", content)
+        match = re.match(r"(\dP\d)", content)
         if( match ):
             return 'hl'
         match = re.match("([456][sdp]'?)", content)
@@ -234,3 +247,55 @@ class LxCatData:
 
         # Rates
         return Q_e
+    
+    # def TransList(self):
+    #     dct = {}
+
+    #     for st in self.transit.keys():
+    #         for ed in self.transit[st].keys():
+    #             if( not self.lv.exists( st ) or not self.lv.exists( ed ) ):
+    #                 continue
+    #             if( st not in dct.keys() ):
+    #                 dct[st] = {}
+    #             dct[st][ed] = self.k_unintegrated( self.transit[st][ed], self.last_Te )
+
+    # def Q_a_onlydetbal(self, Te, verbose = False):
+
+    #     Q_e = TransMatrix.TransMatrix( -1, self.lv ) # Q_e[from, to]; trans is from, col is to
+
+    #     cont = 0
+
+    #     for st in self.transit.keys():
+    #         for ed in self.transit[st].keys():
+    #             if( not self.lv.exists( st ) or not self.lv.exists( ed ) ):
+    #                 if( verbose ):
+    #                     print("Transition between unknown levels: {st} -> {ed}; skipped")
+    #                 continue
+    #             Q_e[ st, ed ] = self.k( self.transit[st][ed], Te )
+
+    #     detballist = []
+
+    #     for st in self.lv.all_names():
+    #         for ed in self.lv.all_names():
+
+    #             if( st == ed ):
+    #                 Q_e[ st, ed ] = 0
+
+    #             elif Q_e[ st, ed ] == -1:
+
+    #                 # Missing coefficient!
+    #                 # Try to compute from detailed balance
+    #                 if( Q_e[ ed, st ] != -1 ):
+    #                     Q_e[ st, ed ] = self.detbal( Q_e[ ed, st ], self.lv[ st ], self.lv[ ed ], Te )
+    #                     detballist.append( (st, ed) )
+    #                     # print(f"Missing cross section calculated via d
+    #                     # et.bal. {st} -> {ed}")
+    #                 else:
+    #                     Q_e[ st, ed ] = 0
+    #                     if( self.lv.ID(st) < self.lv.ID(ed) ):
+    #                         if( verbose ):
+    #                             print(f"Missing coefficient! {st} to {ed}; threated as 0")
+    #                         cont += 1
+
+    #     # List of det bal
+    #     return detballist

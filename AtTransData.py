@@ -71,8 +71,8 @@ class AtTransData:
 
         return uneven
 
-    def Q_a_detbal(self ):
-        uneven = self.Q_a_300K.copy()
+    def Q_a_onlydetbal(self ):
+        uneven = self.__Q_a_300K.copy()
 
         detbaltrans = []
         for st in self.lv.all_names():
