@@ -14,11 +14,11 @@ class AtTransData:
         data = pd.read_excel(
             dirname( __file__ )  + "/data/NguyenChangs.xlsx", skiprows=4, index_col=None).to_dict('records')
 
-        self.Q_a_300K = TransMatrix.TransMatrix( 0, lv ) # MUST BE THEN CALIBRATED
+        self.__Q_a_300K = TransMatrix.TransMatrix( 0, lv ) # MUST BE THEN CALIBRATED
 
         for d in data:
             if( lv.exists( d['To']) ):
-                self.Q_a_300K[ d['From'], d['To'] ] = d['k']
+                self.__Q_a_300K[ d['From'], d['To'] ] = d['k']
             else:
                 split_on = []
                 weights  = []
@@ -43,12 +43,12 @@ class AtTransData:
 
                 if( len( split_on ) > 0 ):
                     for l, w in zip( split_on, weights ):
-                        self.Q_a_300K[ d['From'], l ] = d['k'] * w
+                        self.__Q_a_300K[ d['From'], l ] = d['k'] * w
                 else:
                     print( f"Unknown level: {d['To']}" )
         
         # Calibrate 10^-12 cm^3 -> 10^-18 m^3
-        self.Q_a_300K = self.Q_a_300K * 1e-18
+        self.__Q_a_300K = self.__Q_a_300K * 1e-18
 
         self.KtoEv = 8.61732814974056E-05
 
@@ -56,9 +56,12 @@ class AtTransData:
         expfact = ( new_to_lev['Energy_ev'] - new_from_lev['Energy_ev'] ) / Tg_ev
         Q_rev = new_to_lev['g'] / new_from_lev['g'] * rev_Q_e * np.exp( - expfact )
         return Q_rev
+    
+    def Q_a_without_detbal( self, Tg = 300 ):
+        return self.__Q_a_300K * np.sqrt( Tg / 300 )
 
     def Q_a(self, Tg ):
-        uneven = self.Q_a_300K * np.sqrt( Tg / 300 )
+        uneven = self.__Q_a_300K * np.sqrt( Tg / 300 )
 
         for st in self.lv.all_names():
             for ed in self.lv.all_names():
@@ -67,3 +70,16 @@ class AtTransData:
                         uneven[st,ed] = self.detbal( uneven[ed,st], self.lv[st], self.lv[ed], Tg * self.KtoEv )
 
         return uneven
+
+    def Q_a_detbal(self ):
+        uneven = self.Q_a_300K.copy()
+
+        detbaltrans = []
+        for st in self.lv.all_names():
+            for ed in self.lv.all_names():
+                if( uneven[st,ed] == 0 ):
+                    if( uneven[ed,st] > 0 ):
+                        uneven[st,ed] = self.detbal( uneven[ed,st], self.lv[st], self.lv[ed], 300 * self.KtoEv )
+                        detbaltrans.append((st,ed))
+
+        return detbaltrans

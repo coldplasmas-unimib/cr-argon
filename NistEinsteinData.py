@@ -9,7 +9,7 @@ class NistEinsteinData:
         data = pd.read_csv( dirname( __file__ ) + "/data/NIST_TRANS.txt")
         self.lv = lv
 
-        self.A = TransMatrix.TransMatrix( 0, lv )
+        self.__A = TransMatrix.TransMatrix( 0, lv )
         self.statesSets = {}
 
         for i, d in data.iterrows():
@@ -20,21 +20,24 @@ class NistEinsteinData:
                 continue
             if( st == ed ):
                 continue
-            if( self.A[st,ed] > 0 ):
+            if( self.__A[st,ed] > 0 ):
                 # print(f"Transition duplicated! Summing. {st} -> {ed}")
                 pass
             if( np.isnan(  d['Aki(s^-1)'] ) ):
                 continue
-            self.A[st,ed] = self.A[st,ed] + d['Aki(s^-1)']
+            self.__A[st,ed] = self.__A[st,ed] + d['Aki(s^-1)']
 
         for st in lv.all_names():
             for ed in lv.all_names():
                 norm_on = len( self.statesSets[st] )
                 # if( norm_on > 1 ):
                 #     print(f"Normalizing {st}->{ed} on {norm_on}")
-                self.A[st,ed] = self.A[st,ed] / norm_on
+                self.__A[st,ed] = self.__A[st,ed] / norm_on
 
         self.evToNm = 1239.8
+
+    def A(self):
+        return self.__A.copy()
 
     def parseState(self, row, idx):
         st, st_complete = self.parseStateSub( row, idx )
@@ -70,12 +73,12 @@ class NistEinsteinData:
         lines = []
         for i in self.lv.all_names():
             for j in self.lv.all_names():
-                if( self.A[i,j] > 0 ):
+                if( self.__A[i,j] > 0 ):
                     lines.append( {
                         'from': i,
                         'to': j,
                         'wl': self.evToNm / ( self.lv[i]['Energy_ev'] - self.lv[j]['Energy_ev'] ),
-                        'A': self.A[ i,j ]
+                        'A': self.__A[ i,j ]
                     } )
 
         lines = np.array( lines )

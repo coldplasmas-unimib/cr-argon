@@ -13,7 +13,7 @@ class Solver:
         self.eimpact_data = LxCatData.LxCatData( self.lv )
 
         self.radiative_data = NistEinsteinData.NistEinsteinData( self.lv )
-        self.A = self.radiative_data.A
+        self.A = self.radiative_data.A()
 
         self.atimpact_data = AtTransData.AtTransData( self.lv )
 
@@ -41,7 +41,7 @@ class Solver:
 
         self.Q_e = self.eimpact_data.Q_e(T_e)
         self.Q_a = self.atimpact_data.Q_a(T_g)
-        self.A = self.radiative_data.A
+        self.A = self.radiative_data.A()
 
         # Total rate matrix
         R = self.Q_e.M * f_e + self.A.M / n_g + self.Q_a.M

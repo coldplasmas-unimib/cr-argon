@@ -39,3 +39,8 @@ class TransMatrix ( ):
         output = TransMatrix( 0, self.lv )
         output.M = self.M / divfor
         return output
+    
+    def copy(self):
+        output = TransMatrix( 0, self.lv )
+        output.M = self.M * 1 # Multiplying by 1 guarantees that a copy is created
+        return output
