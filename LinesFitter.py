@@ -5,6 +5,7 @@ from .utilities.ufloat_functs import mean, n
 from scipy.optimize import curve_fit
 from uncertainties import *
 
+
 class LinesFitter:
 
     def __init__(self):
@@ -14,9 +15,8 @@ class LinesFitter:
         self.unct = 0.7
         self.shift = 0.6
 
-
         # Select only certain lines
-        self.updateLines( [
+        self.updateLines([
             # 2p2
             697, 727, 827,
             # 2p3
@@ -25,7 +25,7 @@ class LinesFitter:
             795, 852,
             # 2p6
             764,
-            923,
+            # 923,
             # 2p7
             # 867,
             # 2p8
@@ -36,8 +36,8 @@ class LinesFitter:
             # 2p10
             913,
             966
-        ] )
-        
+        ])
+
     def updateLines(self, selected_wls):
         self.lines = self.tr.all_lines()
 
@@ -48,7 +48,6 @@ class LinesFitter:
         levels = np.unique([l['from'] for l in self.lines])
         self.levels = levels[np.argsort(
             [self.lv[l]['Energy_ev'] for l in levels])]
-
 
     @staticmethod
     def gaus(x, a, x0, sigma):
@@ -67,9 +66,9 @@ class LinesFitter:
 
             try:
                 par, err = curve_fit(LinesFitter.gaus, wl[idxs], intensities[idxs], p0=[
-                    np.max(intensities[idxs]), l['wl'], self.unct / 8])
+                                     np.max(intensities[idxs]), l['wl'], self.unct / 8])
             except RuntimeError as e:
-                par, err = [0], [[0]]
+                par, err = [0,0,1], [[0]]
 
             ampl.append(ufloat(par[0], np.sqrt(err[0][0])))
             dens.append(ufloat(par[0], np.sqrt(err[0][0])) / l['A'])
@@ -93,11 +92,11 @@ class LinesFitter:
             output.append(mean(densities[idxs]))
 
         # Normalize
-        output = output / np.mean( n( output ) )
+        output = output / np.mean(n(output))
 
         # TO BE REMOVED
-        for i in range( len(output) ):
-            output[i] = ufloat( output[i].n, 0.05 ) # TO BE REMOVED
+        for i in range(len(output)):
+            output[i] = ufloat(output[i].n, 0.05)  # TO BE REMOVED
             # print(f"{lv} estimated over {sum(idxs)} lines")
 
         return output

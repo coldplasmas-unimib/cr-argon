@@ -232,8 +232,8 @@ class LxCatData:
                     # Try to compute from detailed balance
                     if( Q_e[ ed, st ] != -1 ):
                         Q_e[ st, ed ] = self.detbal( Q_e[ ed, st ], self.lv[ st ], self.lv[ ed ], Te )
-                        # print(f"Missing cross section calculated via d
-                        # et.bal. {st} -> {ed}")
+                        if( verbose ):
+                            print(f"Missing cross section calculated via det.bal. {st} -> {ed}")
                     else:
                         Q_e[ st, ed ] = 0
                         if( self.lv.ID(st) < self.lv.ID(ed) ):
