@@ -182,34 +182,3 @@ class PickAndSolve:
             T_es[i] = result[ 'T_e' ]
 
         return minus_log_f_es, T_es
-    
-    # def getSpectrum(self, n, lines=[], all_lines=False, with_lines = False):
-    #     if (len(lines) == 0):
-    #         lines = self.defaultLines
-
-    #     if (all_lines):
-    #         lines = []
-    #         for i in self.levdict.keys():
-    #             for j in self.levdict.keys():
-    #                 if (i == j):
-    #                     continue
-    #                 if( self.levdict[i]['Energy_cm'] > self.levdict[j]['Energy_cm'] ):
-    #                     lines.append( (i, j) )
-
-    #     lambdas = []
-    #     intensities = []
-    #     for (i, j) in lines:
-    #         lambdas.append(
-    #             1.0 / (self.levdict[i]['Energy_cm'] - self.levdict[j]['Energy_cm']) * 1e7)
-    #         intensities.append(
-    #             self.A[self.levdict[i]['id'], self.levdict[j]['id']] * n[self.levdict[i]['id']])
-
-    #     if( with_lines ):
-    #         return np.array(lambdas), np.array(intensities), np.array( lines )
-    #     return np.array(lambdas), np.array(intensities)
-
-    # def getLambdas(self, lines=[], all_lines=False):
-    #     return self.getSpectrum( np.zeros( self.levcount ), lines, all_lines )[0]
-
-    # def getIntensities(self, lines=[], all_lines=False):
-    #     return self.getSpectrum( np.ones( self.levcount ), lines, all_lines )[1]

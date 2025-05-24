@@ -1,15 +1,10 @@
 import numpy as np
-import re
 from os.path import dirname
 from . import Levels, TransMatrix
-from copy import deepcopy
 import pandas as pd
-from functools import lru_cache
 from .SingletonMeta import SingletonMeta
-from glob import glob
 
 class AtomsTransitionsData_Factory(metaclass = SingletonMeta):
-# class AtomsTransitionsData_Factory(): # TODO make this a singleton
     def __init__(self):
         self.lv = Levels.Levels()
 
@@ -32,7 +27,6 @@ class AtomsTransitionsData:
 
     def __init__(self, factory: AtomsTransitionsData_Factory ):
 
-        # self.T_es = factory.data[0]['T_e']
         self.factory = factory
         self.ks = [ # Here the Montecarlo picking happens!
             self.factory.Tfacts * ( f * d['k_max'] + ( 1.0 - f ) * d['k_min'] ) for d, f in zip( factory.data, np.random.rand( len( factory.data ) ) )

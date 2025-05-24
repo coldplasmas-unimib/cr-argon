@@ -1,6 +1,7 @@
 import numpy as np
 from . import Levels
 from typeguard import typechecked
+from tabulate import tabulate
 
 class TransMatrix ( ):
 
@@ -53,3 +54,10 @@ class TransMatrix ( ):
         output = TransMatrix( 0 )
         output.M = self.M * 1 # Multiplying by 1 guarantees that a copy is created
         return output
+        
+    def print(self):
+        print( tabulate(
+            self.M,
+            headers = self.lv.all_names(),
+            showindex = self.lv.all_names()
+        ))

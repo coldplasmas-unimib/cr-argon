@@ -2,16 +2,11 @@ import numpy as np
 import re
 from os.path import dirname
 from . import Levels, TransMatrix
-from copy import deepcopy
 import pandas as pd
-from functools import lru_cache
 from .SingletonMeta import SingletonMeta
 from glob import glob
 
-
-
 class ElectronsTransitionsData_Factory(metaclass = SingletonMeta):
-# class ElectronsTransitionsData_Factory():  # TODO make this a singleton
     def __init__(self):
         self.lv = Levels.Levels()
 
@@ -48,7 +43,7 @@ class ElectronsTransitionsData:
 
         self.factory = factory
         self.ks = [  # Here the Montecarlo picking happens!
-            f * np.array(d['k_max']) + (1.0 - f) * np.array(d['k_min']) for d, f in zip(factory.data, np.random.rand(len(factory.data)))
+            f * np.array(d['k_max']) + (1.0 - f) * np.array(d['k_min']) for d, f in zip(factory.data, np.random.random_sample(len(factory.data)))
         ]
         self.rev_ks = [  # Here instead the reverse (detbal) coefficients are computed
             self._detbal(ks_props, ks_data) for (ks_props, ks_data) in zip(factory.data, self.ks)
@@ -57,7 +52,6 @@ class ElectronsTransitionsData:
         self._transMatrix = TransMatrix.TransMatrix(0)
 
     def transMatrix(self, T_e):
-        # print(T_e,  self.factory.T_es[-1],  self.factory.T_es[0])
         assert T_e < self.factory.T_es[-1]
         assert T_e > self.factory.T_es[0]
 
