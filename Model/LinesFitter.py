@@ -3,7 +3,6 @@ from .utilities import adv_plt as plt, splt
 from . import Levels, RadiativeTransitions
 from .utilities.ufloat_functs import mean, n
 from scipy.optimize import curve_fit
-from uncertainties import *
 
 
 class LinesFitter:

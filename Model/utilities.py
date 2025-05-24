@@ -1,17 +1,17 @@
 from math import sqrt
 import numpy as np
-import UFloat
+from . import UFloat
 
 @np.vectorize
-def n( x ):
+def n_( x ):
     if( isinstance( x, list ) ):
-        return [ n( xi ) for xi in x ]
+        return [ n_( xi ) for xi in x ]
     return x.n if 'UFloat' in str( type( x ) ) else x
 
 @np.vectorize
-def s( x ):
+def s_( x ):
     if( isinstance( x, list ) ):
-        return [ s( xi ) for xi in x ]
+        return [ s_( xi ) for xi in x ]
     return x.s if 'UFloat' in str( type( x ) ) else 0
 
 def mean( array, exclude_nan = False ):
@@ -25,12 +25,12 @@ def mean( array, exclude_nan = False ):
         for i2, a2 in enumerate( array ):
             if( i1 < i2 ):
                 continue
-            if( abs( n( a1 ) - n( a2 ) ) > 3 * sqrt( s( a1 )**2 + s( a2 )**2 ) ):
+            if( abs( n_( a1 ) - n_( a2 ) ) > 3 * sqrt( s_( a1 )**2 + s_( a2 )**2 ) ):
                 compatible = False
                 break
     if( compatible ):
-        std = sqrt( np.sum( s( array )**2 ) / len( array )**2 )
+        std = sqrt( np.sum( s_( array )**2 ) / len( array )**2 )
     else:
-        std = np.std( n( array ), ddof = 1 ) / np.sqrt( len( array ) )
+        std = np.std( n_( array ), ddof = 1 ) / np.sqrt( len( array ) )
 
-    return UFloat.UFloat( n( mean ), std )
+    return UFloat.UFloat( n_( mean ), std )
