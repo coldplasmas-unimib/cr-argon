@@ -56,9 +56,14 @@ def plot_with_optional_fmt( x, y, fmt = None, **plot_info ):
 def unp_plot( x, y = [], *args, as_area = False, avoid_errors = False, xy_sorted = False, normalize = False, keep_color = False, **plot_info ):
 
     # Single-point plot
-    if( not callable( getattr( x, '__len__', None ) ) ):
+    try:
+        len( x )
+    except TypeError:
         x = [x]
-    if( not callable( getattr( y, '__len__', None ) ) ):
+        
+    try:
+        len( y )
+    except TypeError:
         y = [y]
 
     if( keep_color ):

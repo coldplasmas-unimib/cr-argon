@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.linalg import null_space
-from . import ElectronsTransitionsData, AtomsTransitionsData, Levels, RadiativeTransitions
+from . import ElectronsTransitionsData, AtomsTransitionsData, Levels, RadiativeTransitions, TransMatrix
 from .utilities import n_,s_
 from scipy.optimize import minimize
 from tqdm import tqdm
@@ -23,29 +23,28 @@ class PickAndSolve:
         # T_g: gas temperature, K
 
         # Total rate matrix
-        R = self.eimpact_data.transMatrix( T_e ) #( self.eimpact_data.transMatrix( T_e ) * f_e + self.radiative_data / n_g + self.aimpact_data.transMatrix( T_g ) ).M
-        # R = ( self.eimpact_data.transMatrix( T_e ) * f_e + self.radiative_data / n_g + self.aimpact_data.transMatrix( T_g ) ).M
+        R = ( self.eimpact_data.transMatrix( T_e ) * f_e + self.radiative_data / n_g + self.aimpact_data.transMatrix( T_g ) ).M
 
-        # # Normalize
-        # R = R / np.max(R)
+        # Normalize
+        R = R / np.max(R)
 
-        # # Assert null diagonal
-        # assert np.sum(R * np.identity(self.lv.levcount)) == 0
+        # Assert null diagonal
+        assert np.sum(R * np.identity(self.lv.levcount)) == 0
 
-        # # Transition matrix
-        # T = R.T - np.diag(R.dot(np.ones(self.lv.levcount)))
+        # Transition matrix
+        T = R.T - np.diag(R.dot(np.ones(self.lv.levcount)))
 
-        # eq_densities = null_space(T)
+        eq_densities = null_space(T)
 
-        # if (eq_densities.shape[1] > 1):
-        #     print(
-        #         f"Warning! More than one solution found for T_e = {T_e}; {eq_densities.shape[1]} solutions available. Displaying only the first one.")
+        if (eq_densities.shape[1] > 1):
+            print(
+                f"Warning! More than one solution found for T_e = {T_e}; {eq_densities.shape[1]} solutions available. Displaying only the first one.")
 
-        # # self.n = eq_densities[:, 0] / eq_densities[0, 0] * n_g # Normalize such that the density of the ground state is n_g
-        # # self.n = eq_densities[:, 0] / eq_densities[0, 0] * 1e6 # Normalize such that the density of the ground state is 1e6
-        # self.n = eq_densities[:, 0] / eq_densities[0, 0] # Normalize such that the density of the ground state is 1
+        # self.n = eq_densities[:, 0] / eq_densities[0, 0] * n_g # Normalize such that the density of the ground state is n_g
+        # self.n = eq_densities[:, 0] / eq_densities[0, 0] * 1e6 # Normalize such that the density of the ground state is 1e6
+        self.n = eq_densities[:, 0] / eq_densities[0, 0] # Normalize such that the density of the ground state is 1
 
-        # return self.n
+        return self.n
 
     def chiSquared( self, measured_levels, simulated_levels ):
 

@@ -11,12 +11,16 @@ class AtomsTransitionsData_Factory(metaclass = SingletonMeta):
         self.T_gs = np.arange( 200.0, 1000.0 )
 
         self.data = pd.read_csv( dirname( __file__ ) + "/data/parseddata_a.csv", index_col=False ).to_dict('records')
+        for d in self.data:
+            d['from_id'] = self.lv.ID( d['from'] )
+            d['to_id'] = self.lv.ID( d['to'] )
+
         self.ref = TransMatrix.TransMatrix(0) ## Integers transitions matrix, such that: 0 if non defined, else defined in self.data[i]
 
         self.Tfacts = np.sqrt( self.T_gs / 300 )
 
         for i, d in enumerate( self.data ):
-            self.ref[ d['from'], d['to'] ] = i
+            self.ref[ d['from_id'], d['to_id'] ] = i
             
         print(f"Loaded {len(self.data)} rows")
 
@@ -38,8 +42,8 @@ class AtomsTransitionsData:
         self._transMatrix = TransMatrix.TransMatrix(0)
 
     def _detbal( self, ks_props, ks_data ):
-        new_from_lev = self.factory.lv[ ks_props['to'] ]
-        new_to_lev = self.factory.lv[ ks_props['from'] ]
+        new_from_lev = self.factory.lv[ ks_props['to_id'] ]
+        new_to_lev = self.factory.lv[ ks_props['from_id'] ]
         KtoEv = 8.61732814974056E-05
         expfact = ( new_to_lev['Energy_ev'] - new_from_lev['Energy_ev'] ) / KtoEv / self.factory.T_gs
         return new_to_lev['g'] / new_from_lev['g'] * ks_data * np.exp( - expfact )
@@ -50,8 +54,8 @@ class AtomsTransitionsData:
         frac = i_frac - i
 
 
-        for st in self._transMatrix.lv.all_names():
-            for ed in self._transMatrix.lv.all_names():
+        for st in range( self._transMatrix.lv.levcount ):
+            for ed in range( self._transMatrix.lv.levcount ):
                 key = int( self.factory.ref[st,ed] )
                 if( key > 0 ):
                     self._transMatrix[st,ed] = self.ks[key][ i ] * ( 1 - frac ) +  self.ks[key][ i + 1 ] * frac

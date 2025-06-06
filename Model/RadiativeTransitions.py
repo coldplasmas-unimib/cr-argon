@@ -14,7 +14,7 @@ class RadiativeTransitions(metaclass=SingletonMeta):
         self.__A = TransMatrix.TransMatrix(0)
 
         for _, d in data.iterrows():
-            self.__A[d['Start'], d['End']] = d['A']
+            self.__A[ self.lv.ID(d['Start']), self.lv.ID(d['End'])] = d['A']
 
         self.evToNm = 1239.8
 

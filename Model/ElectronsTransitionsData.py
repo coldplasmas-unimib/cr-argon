@@ -6,7 +6,8 @@ import pandas as pd
 from .SingletonMeta import SingletonMeta
 from glob import glob
 
-class ElectronsTransitionsData_Factory(metaclass = SingletonMeta):
+
+class ElectronsTransitionsData_Factory(metaclass=SingletonMeta):
     def __init__(self):
         self.lv = Levels.Levels()
 
@@ -18,7 +19,8 @@ class ElectronsTransitionsData_Factory(metaclass = SingletonMeta):
             st, ed = re.search(r'k_([a-z\d\+]+)_([a-z\d\+]+)\.csv', f).groups()
             self.data.append(pd.read_csv(f, index_col=False).to_dict('list'))
             self.data[-1].update(
-                {'from': st, 'to': ed}
+                {'from': st, 'to': ed, 'from_id': self.lv.ID(
+                    st), 'to_id': self.lv.ID(ed)}
             )
 
             if (len(self.data) > 1):
@@ -26,10 +28,10 @@ class ElectronsTransitionsData_Factory(metaclass = SingletonMeta):
                 assert np.all(
                     np.array(self.data[-1]['T_e']) == np.array(self.data[-2]['T_e']))
 
-            self.ref[ self.lv.ID(st), self.lv.ID(ed)] = len(self.data) - 1
+            self.ref[self.lv.ID(st), self.lv.ID(ed)] = len(self.data) - 1
 
-        if( len( self.data) > 1):
-            self.T_es = np.array( self.data[0]['T_e'] )
+        if (len(self.data) > 1):
+            self.T_es = np.array(self.data[0]['T_e'])
 
         print(f"Loaded {len(self.data)} files")
 
@@ -59,8 +61,8 @@ class ElectronsTransitionsData:
         i = int(np.floor(i_frac))
         frac = i_frac - i
 
-        for st in range( self._transMatrix.lv.levcount ):
-            for ed in range( self._transMatrix.lv.levcount ):
+        for st in range(self._transMatrix.lv.levcount):
+            for ed in range(self._transMatrix.lv.levcount):
                 key = int(self.factory.ref[st, ed])
                 if (key > 0):
                     self._transMatrix[st, ed] = self.ks[key][i] * \
@@ -75,8 +77,9 @@ class ElectronsTransitionsData:
 
         return self._transMatrix
 
-    def _detbal(self, ks_props, ks_data ):
-        new_from_lev = self.factory.lv[ ks_props['to'] ]
-        new_to_lev = self.factory.lv[ ks_props['from'] ]
-        expfact = (new_to_lev['Energy_ev'] - new_from_lev['Energy_ev']) / self.factory.T_es
+    def _detbal(self, ks_props, ks_data):
+        new_from_lev = self.factory.lv[ks_props['to_id']]
+        new_to_lev = self.factory.lv[ks_props['from_id']]
+        expfact = (new_to_lev['Energy_ev'] -
+                   new_from_lev['Energy_ev']) / self.factory.T_es
         return new_to_lev['g'] / new_from_lev['g'] * ks_data * np.exp(- expfact)

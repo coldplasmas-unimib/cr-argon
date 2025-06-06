@@ -15,11 +15,11 @@ class TransMatrix ( ):
         else:
             self.M = np.ones( ( self.lv.levcount, self.lv.levcount ) ) * init_value
 
-    @typechecked
+    # @typechecked
     def __getitem__(self, k: tuple[ int, int ] ):
         return self.M[ k[0], k[1] ]
     
-    @typechecked
+    # @typechecked
     def __setitem__(self, k: tuple[ int , int ], v ):
         self.M[ k[0], k[1] ] = v
 
