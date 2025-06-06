@@ -52,6 +52,9 @@ class PickAndSolve:
         scale_factor = np.sum( n_( measured_levels ) * simulated_levels / normfact / normfact ) / np.sum( simulated_levels * simulated_levels / normfact / normfact )
 
         return np.sum( np.power( ( n_( measured_levels ) - simulated_levels * scale_factor ) / normfact, 2 ) )
+    
+    def chiSquared_frompars( self, measured_levels, measured_levels_idxs, n_g, f_e, T_e, T_g ):
+        return self.chiSquared( measured_levels, self.getEquilibrium( n_g, f_e, T_e, T_g )[measured_levels_idxs] )
 
     def logChiSquared( self, measured_levels, simulated_levels ):
 
