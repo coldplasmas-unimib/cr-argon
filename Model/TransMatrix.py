@@ -16,18 +16,12 @@ class TransMatrix ( ):
             self.M = np.ones( ( self.lv.levcount, self.lv.levcount ) ) * init_value
 
     @typechecked
-    def getId( self, k: int | str ):
-        if( isinstance( k, str ) ):
-            return self.lv.ID( k )
-        return k
-
-    @typechecked
-    def __getitem__(self, k: tuple[ int | str, int | str] ):
-        return self.M[ self.getId( k[0] ), self.getId( k[1] ) ]
+    def __getitem__(self, k: tuple[ int, int ] ):
+        return self.M[ k[0], k[1] ]
     
     @typechecked
-    def __setitem__(self, k: tuple[ int | str, int | str], v ):
-        self.M[ self.getId( k[0] ), self.getId( k[1] ) ] = v
+    def __setitem__(self, k: tuple[ int , int ], v ):
+        self.M[ k[0], k[1] ] = v
 
     def __mul__(self, multfor ):
         output = TransMatrix( 0 )

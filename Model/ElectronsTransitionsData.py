@@ -26,7 +26,7 @@ class ElectronsTransitionsData_Factory(metaclass = SingletonMeta):
                 assert np.all(
                     np.array(self.data[-1]['T_e']) == np.array(self.data[-2]['T_e']))
 
-            self.ref[st, ed] = len(self.data) - 1
+            self.ref[ self.lv.ID(st), self.lv.ID(ed)] = len(self.data) - 1
 
         if( len( self.data) > 1):
             self.T_es = np.array( self.data[0]['T_e'] )
@@ -59,8 +59,8 @@ class ElectronsTransitionsData:
         i = int(np.floor(i_frac))
         frac = i_frac - i
 
-        for st in self._transMatrix.lv.all_names():
-            for ed in self._transMatrix.lv.all_names():
+        for st in range( self._transMatrix.lv.levcount ):
+            for ed in range( self._transMatrix.lv.levcount ):
                 key = int(self.factory.ref[st, ed])
                 if (key > 0):
                     self._transMatrix[st, ed] = self.ks[key][i] * \

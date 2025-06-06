@@ -4,14 +4,10 @@ from . import UFloat
 
 @np.vectorize
 def n_( x ):
-    if( isinstance( x, list ) ):
-        return [ n_( xi ) for xi in x ]
     return x.n if 'UFloat' in str( type( x ) ) else x
 
 @np.vectorize
 def s_( x ):
-    if( isinstance( x, list ) ):
-        return [ s_( xi ) for xi in x ]
     return x.s if 'UFloat' in str( type( x ) ) else 0
 
 def mean( array, exclude_nan = False ):
