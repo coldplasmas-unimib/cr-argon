@@ -35,6 +35,10 @@ class Levels(metaclass=SingletonMeta):
         return self.levdict[lv_name]
 
     # @typechecked
+    def name(self, lv_id: int) -> str:
+        return self.levels[lv_id]['Paschen']
+
+    # @typechecked
     def __getitem__(self, lv_id: int) -> dict:
         return self.levels[lv_id]
 

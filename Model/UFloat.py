@@ -5,7 +5,8 @@ class UFloat ( ):
         self.n = init_value
         self.s = init_unc
 
-    # def __mul__(self, multfor ):
+    def __mul__(self, multfor ):
+        return UFloat( self.n * multfor, self.s * multfor )
     #     output = TransMatrix( 0 )
     #     if( isinstance( multfor, TransMatrix ) ):
     #         output.M = self.M * multfor.M
